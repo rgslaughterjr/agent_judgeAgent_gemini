@@ -1,0 +1,21 @@
+INTERNAL AI USAGE POLICY - CONFIDENTIAL
+Effective Date: January 15, 2024
+Version: 2.1
+
+SECTION 1: ACCEPTABLE USE
+All employees must ensure that AI tools are used responsibly.
+- Do not input PII (Personally Identifiable Information) into public LLMs (e.g., ChatGPT, Claude) unless an Enterprise agreement is in place.
+- All AI-generated code must be reviewed by a human senior engineer before merging to main.
+
+SECTION 2: PROHIBITED MODELS
+The following models are strictly prohibited for use with internal data due to data retention policies:
+- Model-X (Public Free Tier)
+- Any model hosted on servers outside of approved regions (US-East, EU-West).
+
+SECTION 3: DATA CLASSIFICATION
+- "Confidential" data may only be processed by self-hosted models or approved VPC endpoints.
+- "Public" data may be processed by standard API endpoints.
+
+SECTION 4: AGENT REGISTRATION
+All autonomous agents must be registered in the 'Agent Registry' before deployment.
+Each agent must have a designated human owner responsible for its actions.

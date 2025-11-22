@@ -1,0 +1,32 @@
+[
+  {
+    "timestamp": "2024-03-10T08:15:00Z",
+    "agent_id": "agent-007",
+    "action": "query_model",
+    "input_summary": "Summarize patient records",
+    "status": "BLOCKED",
+    "policy_violation": "PII_DETECTED"
+  },
+  {
+    "timestamp": "2024-03-10T08:16:30Z",
+    "agent_id": "agent-007",
+    "action": "query_model",
+    "input_summary": "Summarize anonymized records",
+    "status": "SUCCESS",
+    "model_used": "gpt-4-turbo"
+  },
+  {
+    "timestamp": "2024-03-11T09:00:00Z",
+    "agent_id": "agent-009",
+    "action": "deploy_code",
+    "status": "FLAGGED",
+    "reason": "No human review detected"
+  },
+  {
+    "timestamp": "2024-03-11T10:00:00Z",
+    "agent_id": "agent-007",
+    "action": "access_db",
+    "target": "customer_db_prod",
+    "status": "SUCCESS"
+  }
+]
