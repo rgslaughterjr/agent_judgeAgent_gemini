@@ -129,7 +129,7 @@ python labs/module_1/lab_1_4_starter.py
 
 ## 📝 Project Structure
 
-```
+```text
 agent_judgeAgent_gemini/
 ├── labs/
 │   └── module_1/
