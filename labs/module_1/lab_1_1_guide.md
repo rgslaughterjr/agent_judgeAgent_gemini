@@ -1,43 +1,43 @@
-# Lab 1.1: Security Researcher (CrewAI)
+# Lab 1.1: Security Researcher (LangGraph)
 
 ## Goal
 
-Learn how to orchestrate a team of AI agents using **CrewAI** to perform a multi-step security research task.
+Learn the fundamentals of **LangGraph** by building a simple sequential workflow: A Researcher agent passes information to a Writer agent.
 
 ## Concepts
 
-### 1. Agents
+### 1. State (`TypedDict`)
 
-An **Agent** is an autonomous unit that can perform tasks. It has:
+The **State** is the shared memory of your graph. It holds the data that agents read and write to.
 
-* **Role**: What it is (e.g., "Researcher").
-* **Goal**: What it wants to achieve.
-* **Backstory**: Context that gives it personality and specific expertise.
-* **Tools**: Capabilities it can use (e.g., search, file reading).
+```python
+class AgentState(TypedDict):
+    topic: str
+    research_findings: str
+    summary: str
+```
 
-### 2. Tasks
+### 2. Nodes
 
-A **Task** is a specific assignment for an agent. It has:
+**Nodes** are Python functions that perform work. They take the current `State` as input and return a dictionary to *update* the state.
 
-* **Description**: Detailed instructions on what to do.
-* **Expected Output**: What the result should look like (e.g., "A bulleted list").
-* **Agent**: Who is responsible for this task.
+* `research_node`: Takes `topic`, produces `research_findings`.
+* `writer_node`: Takes `research_findings`, produces `summary`.
 
-### 3. Crew & Process
+### 3. Edges
 
-A **Crew** represents the team. It manages the **Process** (workflow).
+**Edges** define the flow of control.
 
-* **Sequential Process**: Tasks are executed one after another (Task 1 -> Task 2). The output of Task 1 is passed as context to Task 2.
+* **Sequential Edge**: `researcher` -> `writer`. This means "After the researcher finishes, go immediately to the writer."
 
 ## Instructions
 
 1. **Open `lab_1_1_starter.py`**.
-2. **Step 1**: Define the `nist_analyst` agent. Give it a role like "NIST AI RMF Analyst" and a goal to analyze specific controls.
-3. **Step 2**: Define the `compliance_writer` agent. Its goal is to translate technical findings into executive summaries.
-4. **Step 3**: Define `research_task`. Ask the analyst to research the "GOVERN" function of NIST AI RMF.
-5. **Step 4**: Define `write_task`. Ask the writer to create a brief based on the analyst's findings.
-6. **Step 5**: Instantiate the `Crew` with your agents and tasks, and call `kickoff()`.
+2. **Review the State**: Look at how `AgentState` is defined.
+3. **Review the Nodes**: See how `research_node` and `writer_node` use the LLM to process data.
+4. **Review the Graph**: Notice how `workflow.add_edge("researcher", "writer")` connects the two agents.
+5. **Run the Lab**: Execute the script to see the agents work in sequence.
 
 ## Resources
 
-* [CrewAI Documentation](https://docs.crewai.com/)
+* [LangGraph Documentation](https://python.langchain.com/docs/langgraph)
