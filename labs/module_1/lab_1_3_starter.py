@@ -1,111 +1,131 @@
 import os
-import time
-from typing import List
-from langchain_community.document_loaders import DirectoryLoader, TextLoader, UnstructuredMarkdownLoader, JSONLoader
+from dotenv import load_dotenv
+from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_pinecone import PineconeVectorStore
 from langchain.retrievers.multi_query import MultiQueryRetriever
-from langchain_core.documents import Document
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 from pinecone import Pinecone, ServerlessSpec
+import time
 
-# --- Configuration ---
-INDEX_NAME = "agent-judge-lab-1-3"
-DATA_DIR = "../../data" # Path to your data folder
+# Load environment variables
+load_dotenv()
 
-def load_documents() -> List[Document]:
-    """
-    TODO: Load documents from the DATA_DIR.
-    1. Use DirectoryLoader to load all files.
-    2. Hint: You might need 'glob' parameters to find specific extensions if DirectoryLoader defaults fail.
-    3. Alternatively, load each file type separately and combine the lists.
-    """
-    print("--- Loading Documents ---")
-    docs = []
-    # YOUR CODE HERE
-    # docs = ...
+def run_lab_1_3():
+    print("--- Lab 1.3: Advanced RAG & Retrieval Strategies ---")
+
+    # --- Step 1: Load Documents ---
+    print("\n[1] Loading Documents...")
+    try:
+        # Load the internal policy and NIST RMF guide
+        # Assuming running from project root
+        loader_policy = TextLoader("data/internal_ai_policy.txt")
+        loader_nist = TextLoader("data/nist_rmf_gov.md")
+        
+        docs_policy = loader_policy.load()
+        docs_nist = loader_nist.load()
+        
+        all_docs = docs_policy + docs_nist
+        print(f"    Loaded {len(all_docs)} documents.")
+    except Exception as e:
+        print(f"    Error loading documents: {e}")
+        print("    Make sure you are running this script from the project root!")
+        return
+
+    # --- Step 2: Split Documents (Chunking) ---
+    print("\n[2] Splitting Documents...")
+    # We use a recursive splitter to keep related text together
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200
+    )
+    splits = text_splitter.split_documents(all_docs)
+    print(f"    Created {len(splits)} chunks.")
+
+    # --- Step 3: Initialize Embeddings & Vector Store (Pinecone) ---
+    print("\n[3] Setting up Vector Store (Pinecone)...")
     
-    print(f"Loaded {len(docs)} documents.")
-    return docs
+    pinecone_api_key = os.getenv("PINECONE_API_KEY")
+    if not pinecone_api_key:
+        print("    ERROR: PINECONE_API_KEY not found in .env")
+        return
 
-def split_documents(docs: List[Document]) -> List[Document]:
-    """
-    TODO: Split documents into smaller chunks for embedding.
-    1. Use RecursiveCharacterTextSplitter.
-    2. Recommended chunk_size=1000, chunk_overlap=200.
-    """
-    print("--- Splitting Documents ---")
-    splits = []
-    # YOUR CODE HERE
-    # splitter = ...
-    # splits = ...
+    index_name = "agent-judge-labs"
     
-    print(f"Created {len(splits)} chunks.")
-    return splits
-
-def setup_vectorstore(splits: List[Document]):
-    """
-    Sets up the Pinecone VectorStore.
-    (Boilerplate provided for you, but review how it works)
-    """
-    print("--- Setting up VectorStore ---")
-    pc = Pinecone() # Uses PINECONE_API_KEY env var
+    # Initialize Pinecone client to check/create index
+    pc = Pinecone(api_key=pinecone_api_key)
     
-    # Create index if not exists
-    existing_indexes = [i.name for i in pc.list_indexes()]
-    if INDEX_NAME not in existing_indexes:
-        print(f"Creating index {INDEX_NAME}...")
+    # Check if index exists, if not create it
+    existing_indexes = [index.name for index in pc.list_indexes()]
+    if index_name not in existing_indexes:
+        print(f"    Index '{index_name}' not found. Creating...")
         pc.create_index(
-            name=INDEX_NAME,
-            dimension=1536,
+            name=index_name,
+            dimension=1536, # OpenAI text-embedding-3-small dimension
             metric="cosine",
             spec=ServerlessSpec(cloud="aws", region="us-east-1")
         )
-        time.sleep(10) # Wait for initialization
+        # Wait for index to be ready
+        while not pc.describe_index(index_name).status['ready']:
+            time.sleep(1)
+        print("    Index created.")
+    else:
+        print(f"    Index '{index_name}' already exists.")
 
-    embeddings = OpenAIEmbeddings()
+    # Initialize Embeddings
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+    # Create Vector Store and upload documents
+    print("    Upserting documents to Pinecone (this may take a moment)...")
     vectorstore = PineconeVectorStore.from_documents(
         documents=splits,
         embedding=embeddings,
-        index_name=INDEX_NAME
+        index_name=index_name
     )
-    return vectorstore
+    print("    Documents stored successfully.")
 
-def run_queries(vectorstore):
-    """
-    TODO: Run retrieval queries.
-    1. Create a basic retriever from the vectorstore.
-    2. Create a MultiQueryRetriever.
-    3. Ask a complex question and compare results.
-    """
+    # --- Step 4: Multi-Query Retrieval ---
+    print("\n[4] Setting up Multi-Query Retriever...")
+    
+    # The LLM used to generate alternative queries
     llm = ChatOpenAI(temperature=0)
     
-    # 1. Basic Retrieval
-    print("\n--- Basic Retrieval ---")
-    # retriever = ...
-    # query = "What are the prohibited AI models?"
-    # result = retriever.invoke(query)
-    # print(result)
+    retriever = MultiQueryRetriever.from_llm(
+        retriever=vectorstore.as_retriever(),
+        llm=llm
+    )
 
-    # 2. Multi-Query Retrieval
-    print("\n--- Multi-Query Retrieval ---")
-    # mq_retriever = MultiQueryRetriever.from_llm(...)
-    # complex_query = "Compare the NIST GOVERN requirements with our internal policy on PII."
-    # result = mq_retriever.invoke(complex_query)
-    # print(result)
+    # --- Step 5: RAG Chain ---
+    print("\n[5] Running RAG Chain...")
+    
+    # Define the prompt template
+    template = """Answer the question based only on the following context:
+    {context}
+
+    Question: {question}
+    """
+    prompt = ChatPromptTemplate.from_template(template)
+
+    # Build the chain
+    chain = (
+        {"context": retriever, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    # Test Question
+    question = "What are the requirements for AI model approval according to the internal policy?"
+    print(f"\n    Question: {question}")
+    print("    Thinking...")
+    
+    response = chain.invoke(question)
+    
+    print("\n    Answer:")
+    print(f"    {response}")
 
 if __name__ == "__main__":
-    # 1. Load
-    docs = load_documents()
-    
-    # 2. Split
-    if docs:
-        splits = split_documents(docs)
-        
-        # 3. Index
-        # vectorstore = setup_vectorstore(splits)
-        
-        # 4. Query
-        # run_queries(vectorstore)
-    else:
-        print("No documents loaded. Please implement load_documents() first.")
+    run_lab_1_3()
