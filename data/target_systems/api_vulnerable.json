@@ -1,0 +1,125 @@
+{
+    "system_name": "Internal API Gateway",
+    "environment": "production",
+    "owner": "Platform Team",
+    "last_audit": "2023-08-20",
+    "compliance_frameworks": [
+        "SOC2"
+    ],
+    "security_controls": {
+        "encryption": {
+            "at_rest": {
+                "enabled": false,
+                "algorithm": null,
+                "key_rotation_days": null,
+                "key_management": null
+            },
+            "in_transit": {
+                "enabled": true,
+                "tls_version": "1.0",
+                "certificate_expiry": "2024-01-15"
+            }
+        },
+        "authentication": {
+            "mfa_enabled": false,
+            "mfa_enforcement": "disabled",
+            "password_policy": {
+                "min_length": 6,
+                "complexity": "low",
+                "rotation_days": 365,
+                "history": 1
+            },
+            "session_management": {
+                "timeout_minutes": 480,
+                "idle_timeout_minutes": 240,
+                "concurrent_sessions": 10
+            }
+        },
+        "network": {
+            "firewall_enabled": false,
+            "waf_enabled": false,
+            "ddos_protection": false,
+            "allowed_ports": [
+                80,
+                443,
+                22,
+                3306,
+                5432,
+                6379,
+                27017
+            ],
+            "ssh_access": {
+                "enabled": true,
+                "key_based_only": false,
+                "allowed_ips": [
+                    "0.0.0.0/0"
+                ]
+            }
+        },
+        "logging_monitoring": {
+            "centralized_logging": false,
+            "log_retention_days": 7,
+            "siem_integration": false,
+            "real_time_alerts": false,
+            "audit_trail": false
+        },
+        "access_control": {
+            "rbac_enabled": false,
+            "least_privilege": false,
+            "privileged_access_management": false,
+            "regular_access_reviews": false,
+            "review_frequency_days": null
+        },
+        "vulnerability_management": {
+            "automated_scanning": false,
+            "scan_frequency": "never",
+            "patch_management": "manual",
+            "critical_patch_sla_hours": null,
+            "high_patch_sla_hours": null
+        },
+        "data_protection": {
+            "backup_enabled": false,
+            "backup_frequency": null,
+            "backup_retention_days": null,
+            "backup_encryption": false,
+            "disaster_recovery_tested": false,
+            "rto_hours": null,
+            "rpo_hours": null
+        }
+    },
+    "compliance_status": {
+        "overall": "non-compliant",
+        "last_assessment": "2023-08-20",
+        "findings": [
+            "CRITICAL: No encryption at rest",
+            "CRITICAL: TLS 1.0 in use (deprecated)",
+            "CRITICAL: Expired SSL certificate",
+            "CRITICAL: No firewall enabled",
+            "CRITICAL: All ports exposed to internet",
+            "CRITICAL: Password-based SSH from any IP",
+            "HIGH: No MFA enforcement",
+            "HIGH: Weak password policy",
+            "HIGH: No centralized logging",
+            "HIGH: No backup strategy",
+            "HIGH: No vulnerability scanning",
+            "MEDIUM: No RBAC implementation",
+            "MEDIUM: Extended session timeouts",
+            "MEDIUM: No access reviews"
+        ],
+        "remediation_items": [
+            "IMMEDIATE: Enable encryption at rest",
+            "IMMEDIATE: Upgrade to TLS 1.3",
+            "IMMEDIATE: Renew SSL certificate",
+            "IMMEDIATE: Enable firewall and restrict ports",
+            "IMMEDIATE: Implement key-based SSH with IP restrictions",
+            "URGENT: Enforce MFA for all users",
+            "URGENT: Implement strong password policy",
+            "URGENT: Enable centralized logging with SIEM",
+            "URGENT: Implement backup and DR strategy",
+            "HIGH: Deploy automated vulnerability scanning",
+            "HIGH: Implement RBAC",
+            "MEDIUM: Reduce session timeouts",
+            "MEDIUM: Establish quarterly access reviews"
+        ]
+    }
+}

@@ -1,0 +1,120 @@
+{
+    "system_name": "Legacy Mainframe Integration",
+    "environment": "production",
+    "owner": "Legacy Systems Team",
+    "last_audit": "2022-03-10",
+    "compliance_frameworks": [
+        "None"
+    ],
+    "security_controls": {
+        "encryption": {
+            "at_rest": {
+                "enabled": false,
+                "algorithm": null,
+                "key_rotation_days": null,
+                "key_management": null
+            },
+            "in_transit": {
+                "enabled": false,
+                "tls_version": null,
+                "certificate_expiry": null
+            }
+        },
+        "authentication": {
+            "mfa_enabled": false,
+            "mfa_enforcement": "disabled",
+            "password_policy": {
+                "min_length": 4,
+                "complexity": "none",
+                "rotation_days": null,
+                "history": 0
+            },
+            "session_management": {
+                "timeout_minutes": null,
+                "idle_timeout_minutes": null,
+                "concurrent_sessions": null
+            }
+        },
+        "network": {
+            "firewall_enabled": false,
+            "waf_enabled": false,
+            "ddos_protection": false,
+            "allowed_ports": "all",
+            "ssh_access": {
+                "enabled": true,
+                "key_based_only": false,
+                "allowed_ips": [
+                    "0.0.0.0/0"
+                ]
+            }
+        },
+        "logging_monitoring": {
+            "centralized_logging": false,
+            "log_retention_days": 0,
+            "siem_integration": false,
+            "real_time_alerts": false,
+            "audit_trail": false
+        },
+        "access_control": {
+            "rbac_enabled": false,
+            "least_privilege": false,
+            "privileged_access_management": false,
+            "regular_access_reviews": false,
+            "review_frequency_days": null
+        },
+        "vulnerability_management": {
+            "automated_scanning": false,
+            "scan_frequency": "never",
+            "patch_management": "none",
+            "critical_patch_sla_hours": null,
+            "high_patch_sla_hours": null
+        },
+        "data_protection": {
+            "backup_enabled": true,
+            "backup_frequency": "monthly",
+            "backup_retention_days": 30,
+            "backup_encryption": false,
+            "disaster_recovery_tested": false,
+            "rto_hours": null,
+            "rpo_hours": 720
+        }
+    },
+    "known_issues": [
+        "Running on Windows Server 2003 (end of life)",
+        "No security patches applied since 2020",
+        "Shared admin credentials across team",
+        "Plaintext passwords stored in config files",
+        "Direct database access from internet",
+        "No change management process",
+        "Undocumented custom code modifications"
+    ],
+    "compliance_status": {
+        "overall": "critical",
+        "last_assessment": "2022-03-10",
+        "findings": [
+            "CRITICAL: End-of-life operating system",
+            "CRITICAL: No encryption anywhere",
+            "CRITICAL: No authentication controls",
+            "CRITICAL: All ports open to internet",
+            "CRITICAL: No logging or monitoring",
+            "CRITICAL: No vulnerability management",
+            "CRITICAL: Shared credentials",
+            "CRITICAL: Plaintext passwords",
+            "CRITICAL: No access controls",
+            "CRITICAL: No patch management",
+            "CRITICAL: No disaster recovery plan"
+        ],
+        "remediation_items": [
+            "IMMEDIATE: Isolate system from internet",
+            "IMMEDIATE: Implement emergency access controls",
+            "URGENT: Plan migration to supported platform",
+            "URGENT: Implement network segmentation",
+            "URGENT: Enable logging and monitoring",
+            "URGENT: Rotate all credentials",
+            "URGENT: Implement encryption",
+            "HIGH: Develop decommission plan",
+            "HIGH: Document all dependencies",
+            "RECOMMENDATION: Replace with modern alternative"
+        ]
+    }
+}

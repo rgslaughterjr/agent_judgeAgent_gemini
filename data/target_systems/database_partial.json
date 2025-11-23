@@ -1,0 +1,105 @@
+{
+    "system_name": "Customer Database Server",
+    "environment": "production",
+    "owner": "Data Team",
+    "last_audit": "2024-10-01",
+    "compliance_frameworks": [
+        "PCI-DSS",
+        "HIPAA"
+    ],
+    "security_controls": {
+        "encryption": {
+            "at_rest": {
+                "enabled": true,
+                "algorithm": "AES-256",
+                "key_rotation_days": 180,
+                "key_management": "manual"
+            },
+            "in_transit": {
+                "enabled": true,
+                "tls_version": "1.2",
+                "certificate_expiry": "2025-03-15"
+            }
+        },
+        "authentication": {
+            "mfa_enabled": false,
+            "mfa_enforcement": "optional",
+            "password_policy": {
+                "min_length": 8,
+                "complexity": "medium",
+                "rotation_days": 180,
+                "history": 5
+            },
+            "session_management": {
+                "timeout_minutes": 60,
+                "idle_timeout_minutes": 30,
+                "concurrent_sessions": 5
+            }
+        },
+        "network": {
+            "firewall_enabled": true,
+            "waf_enabled": false,
+            "ddos_protection": false,
+            "allowed_ports": [
+                3306,
+                22,
+                443
+            ],
+            "ssh_access": {
+                "enabled": true,
+                "key_based_only": false,
+                "allowed_ips": [
+                    "0.0.0.0/0"
+                ]
+            }
+        },
+        "logging_monitoring": {
+            "centralized_logging": true,
+            "log_retention_days": 90,
+            "siem_integration": false,
+            "real_time_alerts": false,
+            "audit_trail": true
+        },
+        "access_control": {
+            "rbac_enabled": true,
+            "least_privilege": false,
+            "privileged_access_management": false,
+            "regular_access_reviews": true,
+            "review_frequency_days": 180
+        },
+        "vulnerability_management": {
+            "automated_scanning": false,
+            "scan_frequency": "monthly",
+            "patch_management": "manual",
+            "critical_patch_sla_hours": 168,
+            "high_patch_sla_hours": 336
+        },
+        "data_protection": {
+            "backup_enabled": true,
+            "backup_frequency": "daily",
+            "backup_retention_days": 30,
+            "backup_encryption": false,
+            "disaster_recovery_tested": false,
+            "rto_hours": 24,
+            "rpo_hours": 24
+        }
+    },
+    "compliance_status": {
+        "overall": "partial",
+        "last_assessment": "2024-10-01",
+        "findings": [
+            "MFA not enforced for privileged access",
+            "SSH accessible from any IP address",
+            "Backup encryption not enabled",
+            "No SIEM integration",
+            "Disaster recovery not tested"
+        ],
+        "remediation_items": [
+            "Enable MFA for all database administrators",
+            "Restrict SSH access to corporate VPN IPs only",
+            "Enable backup encryption",
+            "Integrate with SIEM platform",
+            "Conduct DR test within 30 days"
+        ]
+    }
+}
